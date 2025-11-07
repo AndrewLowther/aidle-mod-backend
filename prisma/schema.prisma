@@ -1,0 +1,31 @@
+// database
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// generator
+generator client {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+}
+
+// data models
+model Guild {
+  id         Int @id @default(autoincrement())
+  guild_name String
+  guild_id   BigInt?
+  guild_icon String?
+  moderate   Boolean @default(false)
+  owner      User? @relation(fields: [owner_id], references: [owner_id])
+  owner_id   BigInt?
+}
+
+model User {
+  id         Int @id @default(autoincrement())
+  owner_id   BigInt @unique
+  owner_name String?
+  owner_icon String?
+  guilds     Guild[]
+}
