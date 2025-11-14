@@ -30,6 +30,12 @@ async def moderate_text(item: ModerationRequest):
       "owner": True
     }
   )
+
+  settings = await db.settings.find_unique(
+    where={
+      "guild_id": metadata.guild_id
+    }
+  )
   
   owner = guild.owner
 
@@ -85,8 +91,20 @@ async def moderate_text(item: ModerationRequest):
   label_prob_pairs.sort(key=lambda item: item[1], reverse=True) 
 
   total_probability = 0
+  simpleSettings = {
+    "enable_ok": False,
+    "enable_h": settings.enable_h,
+    "enable_v": settings.enable_v,
+    "enable_s": settings.enable_s,
+    "enable_h2": settings.enable_h2,
+    "enable_v2": settings.enable_v2,
+    "enable_s3": settings.enable_s3,
+    "enable_hr": settings.enable_hr,
+    "enable_sh": settings.enable_sh,
+  }
+  confidence_limit = settings.confidence_limit
   for label, probability in label_prob_pairs:
-    if label != "OK":
+    if label != "OK" and simpleSettings["enable_" + label.lower()] == True:
       total_probability += float(probability)
 
   # Prepare the response
@@ -103,4 +121,7 @@ async def moderate_text(item: ModerationRequest):
     }
   )
 
-  return {"results": response}
+  return {
+    "results": response,
+    "moderate": True if total_probability >= (confidence_limit / 100) else False
+  }
