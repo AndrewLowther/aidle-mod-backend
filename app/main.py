@@ -9,6 +9,7 @@ from .routes import auth
 from .routes import discord
 from .routes import me
 from .routes import messages
+from .routes import test
 
 api = FastAPI()
 load_dotenv()
@@ -31,6 +32,7 @@ api.include_router(auth.router)
 api.include_router(discord.router)
 api.include_router(me.router)
 api.include_router(messages.router)
+api.include_router(test.router)
 
 @api.get("/")
 async def root():
